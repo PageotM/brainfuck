@@ -37,7 +37,7 @@ def scriptIter(writerPos, valueList, lecteurPos, script):
     elif I == "]":
         n = 0
         closingPos = lecteurPos
-        for c in script[0:lecteurPos][::-1]:
+        for c in script[:lecteurPos][::-1]:
             if c == "[":
                 if n == 0:
                     break
@@ -78,6 +78,49 @@ def runScript(writerPos=writerPos, valueList=valueList, lecteurPos=lecteurPos, s
             break
 
 
-runScript()
+def decompile(command:str, variable = {}):
+    tmp = ""
+    n = 0
+    mem = ""
+    for c in command:
+        if c in "1234567890":
+            if mem != "":
+                tmp += mem*n
+                mem = ""
+                n = 0
+            n *= 10
+            n += int(c)
+
+        elif c in "[]+-<>":
+            if mem == "":
+                if n == 0:
+                    tmp += c
+                else:
+                    tmp += c*n
+                    n = 0
+            else:
+                if n == 0:
+                    tmp += mem
+                    tmp += c
+                else:
+                    print(n)
+                    tmp += mem*n
+                    tmp += c
+                    n = 0
+                mem = ""
+        else:
+            mem += c
+
+
+    for i,o in variable.items():
+        print(i,o)
+        tmp =tmp.replace(i,o)
+
+    return(tmp)
+
+#print (decompile("><a[10Baas3>",variable={"Baas" : "[>]"}))
+
+
+#runScript(renderStep=True)
 
 
