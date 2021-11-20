@@ -79,46 +79,45 @@ def runScript(writerPos=writerPos, valueList=valueList, lecteurPos=lecteurPos, s
 
 
 def decompile(command:str, variable = {}):
-    tmp = ""
-    n = 0
-    mem = ""
+    blocList = []
+    bloctype = []
     for c in command:
+        ctype = ""
         if c in "1234567890":
-            if mem != "":
-                tmp += mem*n
-                mem = ""
-                n = 0
-            n *= 10
-            n += int(c)
-
-        elif c in "[]+-<>":
-            if mem == "":
-                if n == 0:
-                    tmp += c
-                else:
-                    tmp += c*n
-                    n = 0
-            else:
-                if n == 0:
-                    tmp += mem
-                    tmp += c
-                else:
-                    print(n)
-                    tmp += mem*n
-                    tmp += c
-                    n = 0
-                mem = ""
+            ctype = "int"
+        elif c in "<>+-[]":
+            ctype = "log"
         else:
-            mem += c
+            ctype = "str"
+        if len(blocList) == 0:
+            blocList.append(c)
+            bloctype.append(ctype)
+        else:
+            if bloctype[-1] == ctype:
+                blocList[-1] += c
+            else:
+                blocList.append(c)
+                bloctype.append(ctype)
+    for a in range(len(blocList)):
+        if blocList[a] in variable.keys():
+            blocList[a] = variable[blocList[a]]
 
-
-    for i,o in variable.items():
-        print(i,o)
-        tmp =tmp.replace(i,o)
-
+    tmp = ""
+    for bloc in blocList:
+        tmp += bloc
     return(tmp)
 
-#print (decompile("><a[10Baas3>",variable={"Baas" : "[aba>]"}))
+def multileveldecompile(command:str, variable={}, max_decompilation_depth = 5, show_necessary_steps = False):
+    decompiled_command = command
+    for a in range(max_decompilation_depth):
+        next_decompilation_level = decompile(decompiled_command,variable=variable)
+        if decompiled_command == next_decompilation_level:
+            if show_necessary_steps:
+                print("étapes nécessaires:",a)
+            return decompiled_command
+        decompiled_command = next_decompilation_level
+    return  decompiled_command
+print(multileveldecompile("10yBaa<>[sad]123[Baa]as]dd132sd[`12[3]s",variable={"Baa" : "[aba>]","aba":"[-]"},show_necessary_steps=True))
 
 
 #runScript(renderStep=True)
