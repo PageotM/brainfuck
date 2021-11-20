@@ -1,5 +1,5 @@
-script = "puissance:(+++)>base:(++++) setup:(>>>+<<<<>-<)[->[->+>+<<]>[-<+>]>[->[->+>+<<]>[-b<+>]<<]>>>[-<<+>>]<<<<<<]"
-valueList = [0, 0, 0]
+script = ""
+valueList = [0]
 lecteurPos = 0
 writerPos = 0
 
@@ -52,15 +52,18 @@ def scriptIter(writerPos, valueList, lecteurPos, script):
 
 
 
-def render():
+def render(script,lecteurPos,writerPos):
     print(valueList)
     print([int(n == writerPos) for n in range(len(valueList))])
     print(script)
-    print(" " * lecteurPos + script[lecteurPos])
+    if lecteurPos < len(script):
+        print(" " * lecteurPos + script[lecteurPos])
+    else:
+        print("script fini!")
     #print (str([int(n == lecteurPos) for n in range(len(script))]))
     print("______________")
 
-def runScript(writerPos=writerPos, valueList=valueList, lecteurPos=lecteurPos, script=script,renderStep = False,renderFinalResult=True,countIter = True):
+def runScript( script=script,writerPos=writerPos, valueList=valueList, lecteurPos=lecteurPos,renderStep = False,renderFinalResult=True,countIter = True):
     n = 0
     while True:
         temp = scriptIter(writerPos, valueList, lecteurPos, script)
@@ -68,11 +71,11 @@ def runScript(writerPos=writerPos, valueList=valueList, lecteurPos=lecteurPos, s
             writerPos, valueList, lecteurPos = temp
             n += 1
             if renderStep:
-                render()
+                render(script,lecteurPos,writerPos)
             lecteurPos += 1
         else:
             if renderFinalResult:
-                render()
+                render(script,lecteurPos,writerPos)
             if countIter:
                 print("a pris", n, "instructions avant d'arriver")
             break
@@ -118,3 +121,5 @@ def multileveldecompile(command:str, variable={}, max_decompilation_depth = 5, s
         decompiled_command = next_decompilation_level
     return  decompiled_command
 
+
+runScript("++[->-<]",renderStep=True,countIter=True)
