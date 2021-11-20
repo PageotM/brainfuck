@@ -117,9 +117,4 @@ def multileveldecompile(command:str, variable={}, max_decompilation_depth = 5, s
             return decompiled_command
         decompiled_command = next_decompilation_level
     return  decompiled_command
-print(multileveldecompile("10yBaa<>[sad]123[Baa]as]dd132sd[`12[3]s",variable={"Baa" : "[aba>]","aba":"[-]"},show_necessary_steps=True))
-
-
-#runScript(renderStep=True)
-
 
