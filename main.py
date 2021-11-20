@@ -118,7 +118,7 @@ def decompile(command:str, variable = {}):
 
     return(tmp)
 
-#print (decompile("><a[10Baas3>",variable={"Baas" : "[>]"}))
+#print (decompile("><a[10Baas3>",variable={"Baas" : "[aba>]"}))
 
 
 #runScript(renderStep=True)
