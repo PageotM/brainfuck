@@ -15,8 +15,8 @@ exponent = lambda a,b: f"{init(a,b)} >>- [[>]+[<]>>-] +<- [>[+>]<[<]>-] + [>] <<
 SCRIPT = exponent(22,3)
 print(SCRIPT)
 
-STEP_BY_STEP = False    #parametre si on veut voir toutes les etapes, appuyez enter pour passer
-DISPLAY = False         #parametre pour afficher la memoire a chaque etape
+STEP_BY_STEP = True    #parametre si on veut voir toutes les etapes, appuyez enter pour passer
+DISPLAY = True         #parametre pour afficher la memoire a chaque etape
 
 def process(memory, writePos, readPos):
     command = SCRIPT[readPos]
