@@ -12,14 +12,14 @@ multiplyWithPrevious = f"<{multiplyWithNextNoSpace}<"
 
 exponent = lambda a,b: f"{init(a,b)} >>- [[>]+[<]>>-] +<- [>[+>]<[<]>-] + [>] <<-[+>{multiplyWithPrevious}-] >{addToPrevious*2}"
 
-SCRIPT = exponent(22,3)
-print(SCRIPT)
+DEFAULT_SCRIPT = exponent(18,3)
+print(DEFAULT_SCRIPT)
 
 STEP_BY_STEP = True    #parametre si on veut voir toutes les etapes, appuyez enter pour passer
 DISPLAY = True         #parametre pour afficher la memoire a chaque etape
 
-def process(memory, writePos, readPos):
-    command = SCRIPT[readPos]
+def process(script, memory, writePos, readPos):
+    command = script[readPos]
     
     
     if(writePos == len(memory)):
@@ -50,7 +50,7 @@ def process(memory, writePos, readPos):
 
     elif(command == '['):
         if(memory[writePos] == 0):
-            nextReadPos = matchingClosedBracket(readPos)
+            nextReadPos = matchingClosedBracket(script, readPos)
             return memory, writePos, nextReadPos
         else:
             return memory, writePos, (readPos+1)
@@ -59,16 +59,16 @@ def process(memory, writePos, readPos):
         if(memory[writePos] == 0):
             return memory, writePos, (readPos+1)
         else:
-            nextReadPos = matchingOpenBracket(readPos) + 1
+            nextReadPos = matchingOpenBracket(script, readPos) + 1
             return memory, writePos, nextReadPos
     else:   #tout autre caractere est considere comme un commentaire
         return memory, writePos, (readPos+1)
 
-def matchingClosedBracket(readPos):
+def matchingClosedBracket(script, readPos):
     count = 1
     nextPos = readPos
     while(count != 0):
-        nextPos, nextType = nextBracket(nextPos)
+        nextPos, nextType = nextBracket(script, nextPos)
         if nextType == ']':
             count -= 1
         else:   #next bracket is another [
@@ -76,49 +76,81 @@ def matchingClosedBracket(readPos):
     return nextPos
 
 
-def matchingOpenBracket(readPos):
+def matchingOpenBracket(script, readPos):
     count = 1
     lastPos = readPos
     while(count != 0):
-        lastPos, lastType = lastBracket(lastPos)
+        lastPos, lastType = lastBracket(script, lastPos)
         if lastType == '[':
             count -= 1
         else:   #next bracket is another ]
             count += 1
     return lastPos
 
-def nextBracket(readPos):
+def nextBracket(script, readPos):
     bracketPos = readPos + 1
-    for char in SCRIPT[(readPos+1):]:
+    for char in script[(readPos+1):]:
         if char in '[]':
             return bracketPos, char
         bracketPos += 1
     raise SyntaxError
 
 
-def lastBracket(readPos):
+def lastBracket(script, readPos):
     bracketPos = readPos - 1
-    for char in SCRIPT[:readPos][::-1]:
+    for char in script[:readPos][::-1]:
         if char in '[]':
             return bracketPos, char
         bracketPos -= 1
     raise SyntaxError
 
 
-def checkValidScript():
-    if(SCRIPT.count('[') != SCRIPT.count(']')):
+def checkValidScript(script):
+    if(script.count('[') != script.count(']')):
         raise SyntaxError("Certains crochets ne sont pas fermés")
 
 def displayStatus(memory, writePos, readPos):
     print(f'{memory}\nwritePos = {writePos}, readPos = {readPos}')
 
-def main():
-    memory = [0]
+def runScript(script = DEFAULT_SCRIPT, memory = [0]):
+    
     writePos = 0
     readPos = 0
-    checkValidScript()
-    while(readPos < len(SCRIPT)):
-        memory, writePos, readPos = process(memory, writePos, readPos)
+    checkValidScript(script)
+    while(readPos < len(script)):
+        memory, writePos, readPos = process(script, memory, writePos, readPos)
     displayStatus(memory, writePos, readPos)
 
+
+def main():
+    gotomin1L = "+[-<+]-"
+    gotomin3R = "+++[--->+++]---"
+    balancedLogic = f"{gotomin3R}>+<{gotomin1L}"
+    ifaeq0 = f">>+<[>-] {gotomin1L} >> [-<<{balancedLogic}>>]<<"
+
+    test_process_script = f"+++++[----- + {ifaeq0} - >>>  +++++] -----"
+    memory = [-2, 1, 0, -2, 0, 0, -2, 0, 0, -5, 0, -3, 0]
+    print("RUNNING SCRIPT:\t",test_process_script)
+    runScript(test_process_script, memory)
+
 main()
+
+# NOTE FOR NEXT STEPS:
+# * standard logic for - / + (associated to 1 and 2, not 0...)
+
+# * standard logic for > / < (easy if only positive numbers in memory)
+
+# * adapt > / < logic with double jumps, and checkpoint at end-of-script-flag (-8/-5...), to have negative numbers in memory.
+### AKA, do: "goto(-5 right) goto(-3 right double jump), MOVE WRITE FLAG TO RIGHT/LEFT (->>+ or -<<+) , goto(-5 left double jump) goto(-1 left)"
+
+# * standard logic for BRACKETS []!!!
+### decide on paper if using unique flag for each pair of brackets (generated when creating memory at the beginning)
+### options:
+#           ** unique flag for each pair of brackets... (should work BUT must be generated during compilation, not dynamic)
+#           ** temporary flag with "last bracket?" (easy to implement, but how to do nested loops?)
+#           ** cascade de flags? aka chaque loop dans une loop se crée un flag = flag_précedent - 1,
+#                   puis on "remonte" dans les flags a chaque sortie de boucle jusqu'au flag de "pas ds une loop" or whtvr
+
+# * decide flag conventions for read / write, script / memory... (also bracket flags conventions! ^^^)
+
+# * finish paper documentation for final process
